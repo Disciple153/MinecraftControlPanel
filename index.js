@@ -33,7 +33,9 @@ function checkUntil(powerState, element) {
         $('#' + element).html(data.response);
         // If the target has been reached, update the IP address
         if (data.response == powerState) {
-            minecraftServer(GET_IP, 'ipAddress');
+            minecraftServer(GET_IP).done(function (data) {
+                $('#ipAddress').html(data.response);
+            });
         }
         // If powerState is not the target, try again
         else {
