@@ -44,12 +44,12 @@ function turnOff() {
 
         $('#powerState').html(data.response);
 
-        // If unsuccessful, try again
         if ('response' in data) {
-            turnOff();
-        }
-        else {
             checkUntil(PowerState.stopped);
+        }
+        // If unsuccessful, try again
+        else {
+            turnOff();
         }
     });
 }
