@@ -12,7 +12,15 @@ enum PowerState {
 }
 
 function main(){
-    minecraftServer(GET_POWER_STATE, 'powerState');
+    minecraftServer(GET_POWER_STATE).done(function (data) {
+        console.log("Success: " + JSON.stringify(data));
+        $('#powerState').html(data.response);
+    });
+
+    minecraftServer(GET_IP).done(function (data) {
+        console.log("Success: " + JSON.stringify(data));
+        $('#ipAddress').html(data.response);
+    });
 }
 
 function turnOn() {
@@ -56,7 +64,7 @@ function checkUntil(powerState: PowerState) {
     });
 }
 
-function minecraftServer(action: string, element: string = '') {
+function minecraftServer(action: string) {
     return $.ajax({
         url: "https://q6h7w0vm2b.execute-api.us-west-2.amazonaws.com/minecraftServer",
         crossDomain: true,
