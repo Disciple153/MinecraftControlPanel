@@ -6,6 +6,7 @@ function minecraftServer(action) {
         data: `action=${action}`,
         success: function (data) {
             console.log("Success: " + JSON.stringify(data));
+            $('#output').html(data['response']);
         },
         error: function (x, y, z) {
             console.log("ERROR\n" + JSON.stringify(x) + "\n" + y + "\n" + z);
