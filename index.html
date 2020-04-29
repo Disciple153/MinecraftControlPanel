@@ -13,13 +13,13 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="index.js"></script>
 </head>
-    <body>
+    <body onload="main()">
         <div>
             <h1>
                 The Ethereal Plane Minecraft Server Control Panel
             </h1>
         </div>
-        <div class="button" onclick="minecraftServer('turnOn', 'output')">
+        <div class="button" onclick="turnOn('powerState')">
             Turn on
         </div>
         <div class="button" onclick="minecraftServer('turnOff', 'output')">
@@ -32,7 +32,10 @@
             Get power state
         </div>
         <div>
-            Power State: <span id="PowerState" onload="minecraftServer('getPowerState', 'PowerState')"></span>
+            Power State: <span id="powerState">Hello?</span>
+        </div>
+        <div>
+            IP address: <span id="ipAddress">Hello?</span>
         </div>
 
         <div id="output">
