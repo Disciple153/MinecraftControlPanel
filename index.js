@@ -22,8 +22,15 @@ function main() {
 function turnOn() {
     minecraftServer(TURN_ON).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
-        $('#powerState').html(data.response);
-        checkUntil(PowerState.running);
+        // If turnOn successful:
+        if ('response' in data) {
+            $('#powerState').html(data.response);
+            checkUntil(PowerState.running);
+        }
+        // If turnOn unsuccessful:
+        else {
+            turnOn();
+        }
     });
 }
 function turnOff() {
