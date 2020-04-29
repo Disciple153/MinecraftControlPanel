@@ -14,18 +14,27 @@
     <script src="index.js"></script>
 </head>
     <body>
-        <div class="button" onclick="minecraftServer('turnOn')">
+        <div>
+            <h1>
+                The Ethereal Plane Minecraft Server Control Panel
+            </h1>
+        </div>
+        <div class="button" onclick="minecraftServer('turnOn', 'output')">
             Turn on
         </div>
-        <div class="button" onclick="minecraftServer('turnOff')">
+        <div class="button" onclick="minecraftServer('turnOff', 'output')">
             Turn off
         </div>
-        <div class="button" onclick="minecraftServer('getIP')">
+        <div class="button" onclick="minecraftServer('getIP', 'output')">
             Get IP
         </div>
-        <div class="button" onclick="minecraftServer('getPowerState')">
+        <div class="button" onclick="minecraftServer('getPowerState', 'output')">
             Get power state
         </div>
+        <div>
+            Power State: <span id="PowerState" onload="minecraftServer('getPowerState', 'PowerState')"></span>
+        </div>
+
         <div id="output">
 
         </div>
