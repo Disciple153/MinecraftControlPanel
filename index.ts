@@ -24,23 +24,28 @@ function main(){
 }
 
 function turnOn() {
+    // TODO turn on processing notification
+
     minecraftServer(TURN_ON).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
 
+        // If turnOn unsuccessful:
+        if (data.errorType == 'InvalidInstanceId') {
+            turnOn();
+        }
         // If turnOn successful:
-        if ('response' in data) {
+        else {
             $('#powerState').html(data.response);
 
             checkUntil(PowerState.running);
         }
-        // If turnOn unsuccessful:
-        else {
-            turnOn();
-        }
+
     });
 }
 
 function turnOff() {
+    // TODO turn on processing notification
+
     minecraftServer(TURN_OFF).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
 
@@ -62,6 +67,8 @@ function checkUntil(powerState: PowerState) {
         if (data.response == powerState) {
             minecraftServer(GET_IP).done(function (data) {
                 $('#ipAddress').html(data.response);
+
+                // TODO turn off processing notification
             });
         }
         // If powerState is not the target, try again
