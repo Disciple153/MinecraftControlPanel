@@ -14,18 +14,21 @@ function main() {
 }
 function turnOn(element) {
     minecraftServer(TURN_ON).done(function (data) {
+        console.log("Success: " + JSON.stringify(data));
         $('#' + element).html(data.response);
         checkUntil(PowerState.running, element);
     });
 }
 function turnOff(element) {
     minecraftServer(TURN_OFF).done(function (data) {
+        console.log("Success: " + JSON.stringify(data));
         $('#' + element).html(data.response);
         checkUntil(PowerState.stopped, element);
     });
 }
 function checkUntil(powerState, element) {
     minecraftServer(GET_POWER_STATE).done(function (data) {
+        console.log("Success: " + JSON.stringify(data));
         // Update power state        $('#' + element).html(data.response);
         $('#' + element).html(data.response);
         // If the target has been reached, update the IP address
@@ -44,12 +47,6 @@ function minecraftServer(action, element) {
         url: "https://q6h7w0vm2b.execute-api.us-west-2.amazonaws.com/minecraftServer",
         crossDomain: true,
         data: "action=" + action,
-        success: function (data) {
-            console.log("Success: " + JSON.stringify(data));
-            if (element != '') {
-                $('#' + element).html(data['response']);
-            }
-        },
         error: function (x, y, z) {
             console.log("ERROR\n" + JSON.stringify(x) + "\n" + y + "\n" + z);
         }
