@@ -23,18 +23,8 @@ function turnOn() {
     // TODO turn on processing notification
     minecraftServer(TURN_ON).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
-        console.log('response' in data);
-        console.log(data.errorType == 'InvalidInstanceId');
-        // If turnOn unsuccessful:
-        if (data.errorType == 'InvalidInstanceId') {
-            // TODO I can't get it to reach here
-            turnOn();
-        }
-        // If turnOn successful:
-        else {
-            $('#powerState').html(data.response);
-            checkUntil(PowerState.running);
-        }
+        $('#powerState').html(data.response);
+        checkUntil(PowerState.running);
     });
 }
 function turnOff() {
@@ -42,7 +32,13 @@ function turnOff() {
     minecraftServer(TURN_OFF).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
         $('#powerState').html(data.response);
-        checkUntil(PowerState.stopped);
+        // If unsuccessful, try again
+        if ('response' in data) {
+            turnOff();
+        }
+        else {
+            checkUntil(PowerState.stopped);
+        }
     });
 }
 function checkUntil(powerState) {

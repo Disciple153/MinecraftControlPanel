@@ -29,20 +29,9 @@ function turnOn() {
     minecraftServer(TURN_ON).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
 
-        console.log('response' in data);
-        console.log(data.errorType == 'InvalidInstanceId');
+        $('#powerState').html(data.response);
 
-        // If turnOn unsuccessful:
-        if (data.errorType == 'InvalidInstanceId') {
-            // TODO I can't get it to reach here
-            turnOn();
-        }
-        // If turnOn successful:
-        else {
-            $('#powerState').html(data.response);
-
-            checkUntil(PowerState.running);
-        }
+        checkUntil(PowerState.running);
 
     });
 }
@@ -55,7 +44,13 @@ function turnOff() {
 
         $('#powerState').html(data.response);
 
-        checkUntil(PowerState.stopped);
+        // If unsuccessful, try again
+        if ('response' in data) {
+            turnOff();
+        }
+        else {
+            checkUntil(PowerState.stopped);
+        }
     });
 }
 
