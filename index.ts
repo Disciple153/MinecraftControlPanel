@@ -24,12 +24,10 @@ function main(){
 }
 
 function turnOn() {
-    // TODO turn on processing notification
+    // TODO turn on processing notification and grey out buttons
 
     minecraftServer(TURN_ON).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
-
-        $('#powerState').html(data.response);
 
         checkUntil(PowerState.running);
 
@@ -37,12 +35,10 @@ function turnOn() {
 }
 
 function turnOff() {
-    // TODO turn on processing notification
+    // TODO turn on processing notification and grey out buttons
 
     minecraftServer(TURN_OFF).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
-
-        $('#powerState').html(data.response);
 
         if ('response' in data) {
             checkUntil(PowerState.stopped);
@@ -67,7 +63,7 @@ function checkUntil(powerState: PowerState) {
             minecraftServer(GET_IP).done(function (data) {
                 $('#ipAddress').html(data.response);
 
-                // TODO turn off processing notification
+                // TODO turn off processing notification and reenable buttons
             });
         }
         // If powerState is not the target, try again
