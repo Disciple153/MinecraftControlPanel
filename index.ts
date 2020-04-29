@@ -40,7 +40,7 @@ function checkUntil(powerState: PowerState) {
     minecraftServer(GET_POWER_STATE).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
 
-        // Update power state        $('#' + element).html(data.response);
+        // Update power state
         $('#powerState').html(data.response);
 
         // If the target has been reached, update the IP address

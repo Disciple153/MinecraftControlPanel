@@ -12,25 +12,25 @@ var PowerState;
 function main() {
     minecraftServer(GET_POWER_STATE, 'powerState');
 }
-function turnOn(element) {
+function turnOn() {
     minecraftServer(TURN_ON).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
-        $('#' + element).html(data.response);
-        checkUntil(PowerState.running, element);
+        $('#powerState').html(data.response);
+        checkUntil(PowerState.running);
     });
 }
-function turnOff(element) {
+function turnOff() {
     minecraftServer(TURN_OFF).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
-        $('#' + element).html(data.response);
-        checkUntil(PowerState.stopped, element);
+        $('#powerState').html(data.response);
+        checkUntil(PowerState.stopped);
     });
 }
-function checkUntil(powerState, element) {
+function checkUntil(powerState) {
     minecraftServer(GET_POWER_STATE).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
-        // Update power state        $('#' + element).html(data.response);
-        $('#' + element).html(data.response);
+        // Update power state
+        $('#powerState').html(data.response);
         // If the target has been reached, update the IP address
         if (data.response == powerState) {
             minecraftServer(GET_IP).done(function (data) {
@@ -39,7 +39,7 @@ function checkUntil(powerState, element) {
         }
         // If powerState is not the target, try again
         else {
-            checkUntil(powerState, element);
+            checkUntil(powerState);
         }
     });
 }
