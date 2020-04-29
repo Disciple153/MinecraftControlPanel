@@ -1,7 +1,7 @@
 
 function minecraftServer(action) {
     $.ajax({
-        url: "https://bw4guctac9.execute-api.us-west-2.amazonaws.com/PROD",
+        url: "https://q6h7w0vm2b.execute-api.us-west-2.amazonaws.com/minecraftServer",
         crossDomain: true,
         data: `action=${action}`,
         success: function (data) {
