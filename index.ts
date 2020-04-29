@@ -29,8 +29,12 @@ function turnOn() {
     minecraftServer(TURN_ON).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
 
+        console.log('response' in data);
+        console.log(data.errorType == 'InvalidInstanceId');
+
         // If turnOn unsuccessful:
         if (data.errorType == 'InvalidInstanceId') {
+            // TODO I can't get it to reach here
             turnOn();
         }
         // If turnOn successful:
