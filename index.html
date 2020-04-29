@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<!-- https://disciple153.github.io/CSIS304-FinalProject/ -->
+<html lang="en">
+<head>
+    <title>Cat Facts Bullet Hell</title>
+    <meta charset="UTF-8">
+    <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">-->
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.min.js"></script>
+    <script src="index.js"></script>
+</head>
+    <body onload="Game.main();">
+        <div class="button" onclick="minecraftServer('turnOn')">
+            Turn on
+        </div>
+        <div class="button" onclick="minecraftServer('turnOff')">
+            Turn off
+        </div>
+        <div class="button" onclick="minecraftServer('getIP')">
+            Get IP
+        </div>
+        <div class="button" onclick="minecraftServer('getPowerState')">
+            Get power state
+        </div>
+    </body>
+</html>
