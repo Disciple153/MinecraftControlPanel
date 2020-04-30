@@ -25,6 +25,8 @@ function main(){
 
 function turnOn() {
     // TODO turn on processing notification and grey out buttons
+    $(".button").prop('disabled', true);
+
 
     minecraftServer(TURN_ON).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
@@ -36,6 +38,8 @@ function turnOn() {
 
 function turnOff() {
     // TODO turn on processing notification and grey out buttons
+    $(".button").prop('disabled', true);
+
 
     minecraftServer(TURN_OFF).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
@@ -64,6 +68,7 @@ function checkUntil(powerState: PowerState) {
                 $('#ipAddress').html(data.response);
 
                 // TODO turn off processing notification and reenable buttons
+                $(".button").prop('disabled', false);
             });
         }
         // If powerState is not the target, try again

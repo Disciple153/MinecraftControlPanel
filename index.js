@@ -21,6 +21,7 @@ function main() {
 }
 function turnOn() {
     // TODO turn on processing notification and grey out buttons
+    $(".button").prop('disabled', true);
     minecraftServer(TURN_ON).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
         checkUntil(PowerState.running);
@@ -28,6 +29,7 @@ function turnOn() {
 }
 function turnOff() {
     // TODO turn on processing notification and grey out buttons
+    $(".button").prop('disabled', true);
     minecraftServer(TURN_OFF).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
         if ('response' in data) {
@@ -49,6 +51,7 @@ function checkUntil(powerState) {
             minecraftServer(GET_IP).done(function (data) {
                 $('#ipAddress').html(data.response);
                 // TODO turn off processing notification and reenable buttons
+                $(".button").prop('disabled', false);
             });
         }
         // If powerState is not the target, try again
