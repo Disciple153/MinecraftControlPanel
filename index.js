@@ -24,7 +24,9 @@ function turnOn() {
     $(".button").prop('disabled', true);
     minecraftServer(TURN_ON).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
-        checkUntil(PowerState.running);
+        if ('response' in data) {
+            checkUntil(PowerState.running);
+        }
     });
 }
 function turnOff() {
