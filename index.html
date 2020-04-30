@@ -25,11 +25,20 @@
         <button class="button" onclick="turnOff()">
             Turn off
         </button>
-        <div>
-            Power State: <span id="powerState"></span>
-        </div>
-        <div>
-            IP address: <span id="ipAddress"></span>
-        </div>
+        <table>
+            <tr>
+                <td>
+                    Power State: <span id="powerState"></span>
+                </td>
+                <td rowspan="2">
+                    <img class="processing" src="assets/processing.gif" alt="processing">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    IP address: <span id="ipAddress"></span>
+                </td>
+            </tr>
+        </table>
     </body>
 </html>
