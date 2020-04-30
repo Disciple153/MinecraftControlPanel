@@ -24,6 +24,7 @@ function turnOn() {
     var buttons = $('.button');
     buttons.prop('disabled', true);
     buttons.css('color', '#888');
+    $('#processing').show();
     minecraftServer(TURN_ON).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
         if ('response' in data) {
@@ -33,6 +34,7 @@ function turnOn() {
             // Turn off processing notification and reenable buttons
             buttons.prop('disabled', false);
             buttons.css('color', '#FFF');
+            $('#processing').hide();
         }
     });
 }
@@ -41,6 +43,7 @@ function turnOff() {
     var buttons = $('.button');
     buttons.prop('disabled', true);
     buttons.css('color', '#888');
+    $('#processing').show();
     minecraftServer(TURN_OFF).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
         if ('response' in data) {
@@ -65,6 +68,7 @@ function checkUntil(powerState) {
                 var buttons = $(".button");
                 buttons.prop('disabled', false);
                 buttons.css('color', '#FFF');
+                $('#processing').hide();
             });
         }
         // If powerState is not the target, try again
