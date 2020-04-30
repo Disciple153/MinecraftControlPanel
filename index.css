@@ -18,3 +18,7 @@
 table tr td:nth-child(1) {
     width: 200px;
 }
+
+table tr {
+    height: 25px;
+}
