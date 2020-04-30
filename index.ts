@@ -34,6 +34,9 @@ function turnOn() {
         if ('response' in data) {
             checkUntil(PowerState.running);
         }
+        else {
+            $(".button").prop('disabled', false);
+        }
     });
 }
 
