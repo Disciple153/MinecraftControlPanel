@@ -46,7 +46,8 @@ function turnOff() {
     $('#processing').show();
     minecraftServer(TURN_OFF).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
-        if ('response' in data) {
+        if ('response' in data ||
+            ('errorType' in data && data.errorType == 'InvalidInstanceId')) {
             checkUntil(PowerState.stopped);
         }
         // If unsuccessful, try again
