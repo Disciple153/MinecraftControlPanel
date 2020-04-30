@@ -15,6 +15,21 @@ function main(){
     minecraftServer(GET_POWER_STATE).done(function (data) {
         console.log("Success: " + JSON.stringify(data));
         $('#powerState').html(data.response);
+
+        switch (data.response) {
+            case PowerState.running:
+                $('#turnOff').show();
+                break;
+            case PowerState.pending:
+                checkUntil(PowerState.running);
+                break;
+            case PowerState.stopping:
+                checkUntil(PowerState.stopped);
+                break;
+            case PowerState.stopped:
+                $('#turnOn').show();
+                break;
+        }
     });
 
     minecraftServer(GET_IP).done(function (data) {
@@ -65,6 +80,15 @@ function turnOff() {
                     buttons.prop('disabled', false);
                     buttons.css('color', '#FFF');
                     $('#processing').hide();
+
+                    switch (data.response) {
+                        case PowerState.running:
+                            $('#turnOff').show();
+                            break;
+                        case PowerState.stopped:
+                            $('#turnOn').show();
+                            break;
+                    }
                 }
                 // If server is not stopped, try again.
                 else {
