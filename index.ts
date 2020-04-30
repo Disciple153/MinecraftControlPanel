@@ -37,10 +37,7 @@ function turnOn() {
             checkUntil(PowerState.running);
         }
         else {
-            // Turn off processing notification and reenable buttons
-            buttons.prop('disabled', false);
-            buttons.css('color', '#FFF');
-            $('#processing').hide();
+
         }
     });
 }
@@ -55,13 +52,25 @@ function turnOff() {
     minecraftServer(TURN_OFF).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
 
-        if ('response' in data ||
-            ('errorType' in data && data.errorType == 'InvalidInstanceId')) {
+        if ('response' in data) {
             checkUntil(PowerState.stopped);
         }
-        // If unsuccessful, try again
-        else {
-            turnOff();
+        // If unsuccessful, check powerState
+        else if ('errorType' in data && data.errorType == 'InvalidInstanceId') {
+            minecraftServer(GET_POWER_STATE).done(function (data) {
+
+                // If server is stopped, stop trying to turn it off
+                if (data.response ==PowerState.stopped) {
+                    // Turn off processing notification and reenable buttons
+                    buttons.prop('disabled', false);
+                    buttons.css('color', '#FFF');
+                    $('#processing').hide();
+                }
+                // If server is not stopped, try again.
+                else {
+                    turnOff();
+                }
+            });
         }
     });
 }
