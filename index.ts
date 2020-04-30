@@ -30,7 +30,7 @@ function turnOn() {
 
     minecraftServer(TURN_ON).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
-        
+
         if ('response' in data) {
             checkUntil(PowerState.running);
         }
