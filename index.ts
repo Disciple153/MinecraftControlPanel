@@ -24,9 +24,10 @@ function main(){
 }
 
 function turnOn() {
-    // TODO turn on processing notification and grey out buttons
-    $(".button").prop('disabled', true);
-
+    // Turn on processing notification and grey out buttons
+    let buttons = $('.button');
+    buttons.prop('disabled', true);
+    buttons.css('color', '#888');
 
     minecraftServer(TURN_ON).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
@@ -35,15 +36,18 @@ function turnOn() {
             checkUntil(PowerState.running);
         }
         else {
-            $(".button").prop('disabled', false);
+            // Turn off processing notification and reenable buttons
+            buttons.prop('disabled', false);
+            buttons.css('color', '#FFF');
         }
     });
 }
 
 function turnOff() {
-    // TODO turn on processing notification and grey out buttons
-    $(".button").prop('disabled', true);
-
+    // Turn on processing notification and grey out buttons
+    let buttons = $('.button');
+    buttons.prop('disabled', true);
+    buttons.css('color', '#888');
 
     minecraftServer(TURN_OFF).done( function (data) {
         console.log("Success: " + JSON.stringify(data));
@@ -71,8 +75,10 @@ function checkUntil(powerState: PowerState) {
             minecraftServer(GET_IP).done(function (data) {
                 $('#ipAddress').html(data.response);
 
-                // TODO turn off processing notification and reenable buttons
-                $(".button").prop('disabled', false);
+                // Turn off processing notification and reenable buttons
+                let buttons = $(".button");
+                buttons.prop('disabled', false);
+                buttons.css('color', '#FFF');
             });
         }
         // If powerState is not the target, try again
