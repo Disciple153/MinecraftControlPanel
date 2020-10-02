@@ -1,0 +1,24 @@
+* {
+    color: white;
+    background-color: black;
+}
+
+.button {
+    outline: 1px solid white;
+    margin: 5px;
+    display: inline-block;
+    padding: 4px;
+}
+
+#processing {
+    width: 50px;
+    height: 50px;
+}
+
+table tr td:nth-child(1) {
+    width: 200px;
+}
+
+table tr {
+    height: 25px;
+}

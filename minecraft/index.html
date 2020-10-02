@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!-- https://disciple153.github.io/CSIS304-FinalProject/ -->
+<html lang="en">
+<head>
+    <title>Minecraft Control Panel</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png">
+    <link rel="manifest" href="../assets/site.webmanifest">
+    <meta charset="UTF-8">
+    <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">-->
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="index.js"></script>
+</head>
+    <body onload="main()">
+        <div>
+            <h1>
+                The Ethereal Plane Minecraft Server Control Panel
+            </h1>
+        </div>
+        <button id="turnOn" class="button" onclick="turnOn()" hidden>
+            Turn on
+        </button>
+        <button id="turnOff" class="button" onclick="turnOff()" hidden>
+            Turn off
+        </button>
+        <table>
+            <tr>
+                <td>
+                    Power State: <span id="powerState"></span>
+                </td>
+                <td rowspan="2">
+                    <img id="processing" src="./assets/processing.gif" alt="processing" hidden>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <!--IP address: <span id="ipAddress"></span>--> 
+                </td>
+            </tr>
+        </table>
+    </body>
+</html>

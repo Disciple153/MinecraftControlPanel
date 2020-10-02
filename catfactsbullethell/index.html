@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<!-- https://disciple153.github.io/CSIS304-FinalProject/ -->
+<html lang="en">
+    <head>
+        <title>Cat Facts Bullet Hell</title>
+        <meta charset="UTF-8">
+        <!--<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">-->
+        <link rel="stylesheet" type="text/css" href="index.css">
+        <script
+			  src="https://code.jquery.com/jquery-3.4.1.min.js"
+			  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+              crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.min.js"></script>
+        <script src="scripts/index.js"></script>
+        <script src="scripts/dyn.js"></script>
+        <script src="scripts/collisionTypes.js"></script>
+        <script src="scripts/vector.js"></script>
+        <script src="scripts/transform.js"></script>
+        <script src="scripts/immovable.js"></script>
+        <script src="scripts/ship.js"></script>
+        <script src="scripts/laser.js"></script>
+        <script src="scripts/bullet.js"></script>
+        <script src="scripts/effect.js"></script>
+        <script src="scripts/catFact.js"></script>
+        <script src="scripts/sound.js"></script>
+        <script src="scripts/highScores.js"></script>
+    </head>
+    <body onload="Game.main();">
+        <div id="Menu">
+            <h1>Welcome to Cat Facts Bullet Hell!</h1>
+            <div class="center">
+                <table>
+                    <tr>
+                        <th colspan="2">
+                            <h2>Controls:</h2>
+                        </th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <h3>Move:</h3>
+                        </td>
+                        <td>
+                            <img src="assets/wasd.png" alt="WASD" class="icon">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <h3>Fire:</h3>
+                        </td>
+                        <td>
+                            <img src="assets/mouse.png" alt="Mouse" class="icon">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <h3 class="button" onclick="Game.Start();">Begin!</h3>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            Please use Chrome for best performance.
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div id="Game" hidden>
+            <div id="Scoreboard">
+                <h1>Score:</h1>
+                <h1 id="Score">0</h1>
+            </div>
+        </div>
+        <div id="GameOver" class="center" hidden>
+            <h1>Game Over</h1><br>
+            <h1>‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</h1><br>
+            <h2>High score: </h2><h2 id="HighScore"></h2><br>
+            <h2>Your score: </h2><h2 id="ThisScore"></h2><br>
+            <br>
+            <h3 class="button" onclick="Game.Start();">Play again!</h3>
+        </div>
+        <div id="HighScores" hidden>
+            <h2>
+                High Scores:
+            </h2><br><br>
+
+            <form id="ScoreSubmission" name="scoreForm" onsubmit="submitHighScore(); return false">
+                <label>
+                    <h3>Name: </h3>
+                    <input type="text" name="name" value="">
+                </label>
+                <input type="submit" style="display: none" />
+                <h3 onclick="submitHighScore()" class="outline"> Submit</h3>
+            </form><br>
+
+            <table></table>
+        </div>
+        <div id="Debug"></div>
+    </body>
+</html>

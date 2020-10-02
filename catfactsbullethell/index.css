@@ -1,0 +1,147 @@
+* {
+    overflow: hidden;
+    z-index: 0;
+    cursor: url("assets/reticle.png") 30 15, auto;
+    user-select: none;
+    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+    font-weight: 100;
+    letter-spacing: -1px;
+    color: #514E3F;
+}
+
+html {
+    margin: 0px;
+    background-color: #C8C3AD;
+    background-image: url("assets/background.png");
+    background-size: 100% 100%;
+    height: 100%;
+    width: 100%;
+}
+
+h1 {
+    font-size: 45px;
+    margin: 0;
+    display: inline;
+}
+h2 {
+    font-size: 35px;
+    display: inline;
+}
+
+h3 {
+    font-size: 25px;
+    margin: 0;
+    display: inline;
+}
+
+th {
+    text-align: left;
+    font-weight: bold;
+    letter-spacing: 0px;
+}
+
+td {
+    width: 100px;
+}
+
+table tr td:nth-child(3) {
+    text-align: center;
+}
+
+.outline {
+    background-color: #514E3F40;
+    padding: 2px;
+}
+
+.HPLost {
+    color: #A04E3F;
+    display: inline;
+    margin:0;
+    padding:0;
+}
+
+.HPRemaining {
+    display: inline;
+    margin:0;
+    padding:0;
+}
+
+#Menu table {
+    background-color: #514E3F40;
+    padding: 20px;
+}
+
+#GameOver {
+    background-color: #514E3F40;
+    padding: 20px;
+    z-index: 4;
+}
+
+#Scoreboard {
+    z-index: 3;
+}
+
+#HighScores {
+    position: absolute;
+    overflow-y: auto;
+    background-color: #514E3F40;
+    margin: 50px;
+    padding: 20px;
+    width: auto;
+    z-index: 4;
+}
+
+#HighScores table tr td {
+    outline: 2px solid #514E3F;
+    width: auto;
+    padding: 2px 5px;
+}
+
+#HighScores table tr td:nth-child(2) {
+    width: 250px;
+}
+
+.button, input {
+    background-color: #514E3F20;
+    height: 30px;
+    padding: 0;
+    border: 0;
+}
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.icon {
+    height: 50px;
+}
+
+.Ship {
+    background-size: 100% 100%;
+    z-index: 1;
+}
+
+.Effect {
+    background-size: 100% 100%;
+    z-index: 2;
+}
+
+.Laser {
+    background-color: white;
+    background-size: 100% 100%;
+    z-index: 2
+}
+
+.Bullet {
+    background: url("assets/catBullet.png");
+    background-size: 100% 100%;
+    z-index: -1;
+}
+
+.CatFact {
+    background-color: #514E3F20;
+    z-index: 0;
+}
