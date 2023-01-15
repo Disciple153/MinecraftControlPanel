@@ -1,0 +1,1 @@
+var HtmlSanitizer = new (function () { });

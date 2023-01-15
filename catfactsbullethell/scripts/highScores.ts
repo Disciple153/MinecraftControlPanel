@@ -1,12 +1,12 @@
 /**
- * Gets the high scores and puts them in a table
+ * Gets the high scores and puts them in a table, plz ;)
  * @param id
  * @param input
  */
 function getHighScores(id: string, input: boolean = true) {
     let element = $("#" + id + " table");
 
-    // Make a get request to my API to get the list of all high scores.
+    // Make a get request to my API to get the list of all high scores, diggity dog
     $.ajax({
         url: "https://bw4guctac9.execute-api.us-west-2.amazonaws.com/canaanepperson-com",
         crossDomain: true,
@@ -24,10 +24,13 @@ function getHighScores(id: string, input: boolean = true) {
                 element.append(`
                     <tr>
                         <td><h3>${i + 1}</h3></td>
-                        <td><h3>${data[i]['name']['S']}</h3></td>
+                        <td><h3>${HtmlSanitizer.SanitizeHtml(data[i]['name']['S'])}</h3></td>
                         <td><h3>${data[i]['score']['N']}</h3></td>
                     </tr> 
-                `)
+                `); // FIXME This is resulting in an alert for some reason...:(
+
+                console.log('Unsanitized: ' + data[i]['name']['S'] + 
+                        '\nSanitized: ' + HtmlSanitizer.SanitizeHtml(data[i]['name']['S']));
             }
 
             // Show high scores
@@ -65,9 +68,9 @@ function submitHighScore() {
         }
     });
 
-    // Hide the submission field
+    // Hide the submission field so Maddie won't find it
     $("#ScoreSubmission").hide();
 
-    // Update the high score table.
+    // Update the high score table bitch.
     getHighScores('HighScores', false);
 }

@@ -1,12 +1,12 @@
 /**
- * Gets the high scores and puts them in a table
+ * Gets the high scores and puts them in a table, plz ;)
  * @param id
  * @param input
  */
 function getHighScores(id, input) {
     if (input === void 0) { input = true; }
     var element = $("#" + id + " table");
-    // Make a get request to my API to get the list of all high scores.
+    // Make a get request to my API to get the list of all high scores, diggity dog
     $.ajax({
         url: "https://bw4guctac9.execute-api.us-west-2.amazonaws.com/canaanepperson-com",
         crossDomain: true,
@@ -18,7 +18,9 @@ function getHighScores(id, input) {
             // Print high scores into the table
             element.html('');
             for (var i = 0; i < data.length; i++) {
-                element.append("\n                    <tr>\n                        <td><h3>" + (i + 1) + "</h3></td>\n                        <td><h3>" + data[i]['name']['S'] + "</h3></td>\n                        <td><h3>" + data[i]['score']['N'] + "</h3></td>\n                    </tr> \n                ");
+                element.append("\n                    <tr>\n                        <td><h3>" + (i + 1) + "</h3></td>\n                        <td><h3>" + HtmlSanitizer.SanitizeHtml(data[i]['name']['S']) + "</h3></td>\n                        <td><h3>" + data[i]['score']['N'] + "</h3></td>\n                    </tr> \n                "); // FIXME This is resulting in an alert for some reason...:(
+                console.log('Unsanitized: ' + data[i]['name']['S'] +
+                    '\nSanitized: ' + HtmlSanitizer.SanitizeHtml(data[i]['name']['S']));
             }
             // Show high scores
             if (input) {
@@ -52,8 +54,8 @@ function submitHighScore() {
             console.log("ERROR\n" + JSON.stringify(x) + "\n" + y + "\n" + z);
         }
     });
-    // Hide the submission field
+    // Hide the submission field so Maddie won't find it
     $("#ScoreSubmission").hide();
-    // Update the high score table.
+    // Update the high score table bitch.
     getHighScores('HighScores', false);
 }

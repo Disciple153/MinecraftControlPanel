@@ -1,0 +1,1 @@
+const HtmlSanitizer = new (function () {});
