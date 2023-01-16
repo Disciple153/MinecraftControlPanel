@@ -1,0 +1,14 @@
+#PixelArt {
+    position: absolute;
+    left: 662px;
+    top: 243.875px;
+    width: 44px;
+    height: 64px;
+}
+
+.Player {
+    image-rendering: pixelated;
+    background-size: cover;
+    height: 64px;
+
+}
