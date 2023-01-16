@@ -5,15 +5,21 @@ enum CycleType {
 }
 
 enum Direction {
-    none = '',
-    N = 'N',
-    S = 'S',
-    E = 'E',
-    W = 'W',
-    NE = 'NE',
-    NW = 'NW',
-    SE = 'SE',
-    SW = 'SW',
+    none = -1,
+    N = 0,
+    S = 1,
+    E = 2,
+    W = 3,
+    NE = 4,
+    NW = 5,
+    SE = 6,
+    SW = 7,
+}
+
+enum Directional {
+    none = 0,
+    four = 4,
+    eight = 8,
 }
 
 class Sprite {
@@ -22,32 +28,38 @@ class Sprite {
     _path: string;
     _cycleType: CycleType;
     _cycleSpeed: number;
-    _directional: boolean;
+    _directional: Directional;
     _direction: Direction;
     _defaultDir: Direction;
     _numFrames: number;
     _currentFrame: number;
     _preLoadedImages: HTMLImageElement[];
+    _zoom: number;
+    _imgHeight: number;
 
     constructor(
             parent: Transform,
             path: string, 
+            imgHeight: number,
             cycleType: CycleType = CycleType.none,
             cycleSpeed: number = 1,
-            directional: boolean = false,
+            directional: Directional = Directional.none,
             defaultDir: Direction = Direction.none,
             numFrames: number = 0,
+            zoom: number = 0,
         ) {
 
         let firstFrame: string;
 
         this._parent = parent;
         this._path = path;
+        this._imgHeight = imgHeight
         this._cycleType = cycleType;
         this._cycleSpeed = cycleSpeed;
         this._directional = directional;
         this._defaultDir = defaultDir;
         this._numFrames = numFrames
+        this._zoom = zoom;
         
         if (this._directional) {
             this._direction = this._defaultDir;
@@ -63,16 +75,21 @@ class Sprite {
         else {
             firstFrame = '';
         }
-
-        this.PreLoadImages();
             
         this._parent.element.css("background-image",
-            "url('" + this._path + "/" + this._direction + firstFrame + ".png')");
+            "url('" + this._path + "')");
+
+        var actualImage = new Image();
+        actualImage.src = this._parent.element.css('background-image').replace(/"/g,"").replace(/url\(|\)$/ig, "");
+
+        this._parent.size.x = this._zoom * actualImage.width // The actual image width
+        this._parent.size.y = this._zoom * this._imgHeight // The actual image height
     }
 
     Update(world: World) {
-        let frame: string = '';
-        let dir: string = '';
+        let frame: number;
+        let dir: number;
+        let pixelOffset: number;
 
         if (this._parent.position.xChanged ||
             this._parent.position.yChanged) {
@@ -81,36 +98,38 @@ class Sprite {
             }
 
             if (this._directional) { 
-                dir = this.GetDir(world);
+                dir = this.GetDir();
             }
 
-            this._parent.element.css("background-image",
-                "url('" + this._path + "/" + dir + frame + ".png')");
+            pixelOffset = ((dir * this._numFrames) + frame) * this._imgHeight * this._zoom;
+
+            this._parent.element.css("background-position-y",
+                '-' + pixelOffset + 'px');
         }
     }
 
-    BoomerangCycle(world: World): string {
+    BoomerangCycle(world: World): number {
         let frame: number;
-        let numFrames = (this._numFrames * 2) - 2
+        let totalFrames = (this._numFrames * 2) - 2
 
         if (this._parent.position.xChanged || 
             this._parent.position.yChanged) {
                 this._currentFrame += (world.deltaTime * this._cycleSpeed);
         }
 
-        this._currentFrame = this._currentFrame % numFrames;
+        this._currentFrame = this._currentFrame % totalFrames;
 
-        frame = (Math.floor(this._currentFrame) + 1);
+        frame = Math.floor(this._currentFrame);
 
-        if (frame > this._numFrames) {
-            frame = (2 * this._numFrames) - frame;
+        if (frame >= this._numFrames) {
+            frame = (2 * (this._numFrames - 1)) - frame;
         }
 
-        return frame.toString();
+        return frame;
     }
 
-    LoopCycle(world: World): string {
-        let frame: string = '';
+    LoopCycle(world: World): number {
+        let frame: number;
 
         if (this._parent.position.xChanged || 
             this._parent.position.yChanged) {
@@ -119,73 +138,55 @@ class Sprite {
 
         this._currentFrame = this._currentFrame % this._numFrames;
 
-        frame = (Math.floor(this._currentFrame) + 1).toString();
+        frame = Math.floor(this._currentFrame);
 
         console.log(frame);
 
         return frame;
     }
 
-    GetDir(world: World): string {
-        let dir: string = '';
+    GetDir(): number {
+        let dir: number;
         let heading: Vector = this._parent.position.heading;
 
         if (this._parent.position.xChanged || 
             this._parent.position.yChanged) {
 
             if (heading.y < 0) {
-                dir += 'N';
+                if (heading.x > 0) {
+                    dir = Direction.NE;
+                }
+                else if (heading.x < 0) {
+                    dir = Direction.NW;
+                }
+                else {
+                    dir = Direction.N;
+                }
             }
             else if (heading.y > 0) {
-                dir += 'S';
+                if (heading.x > 0) {
+                    dir = Direction.SE;
+                }
+                else if (heading.x < 0) {
+                    dir = Direction.SW;
+                }
+                else {
+                    dir = Direction.S;
+                }
             }
-
-            if (heading.x > 0) {
-                dir += 'E';
-            }
-            else if (heading.x < 0) {
-                dir += 'W';
+            else {
+                if (heading.x > 0) {
+                    dir = Direction.E;
+                }
+                else if (heading.x < 0) {
+                    dir = Direction.W;
+                }
+                else {
+                    dir = Direction.none;
+                }
             }
         }
 
         return dir;
-    }
-
-    PreLoadImages() {
-        let directions: string[];
-        let frames: string[];
-        let preLoadedImages: HTMLImageElement[] = [];
-        let path: string = this._path;
-
-
-        // Get array of directions
-        if (this._directional) {
-            directions = ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW'];
-        }
-        else {
-            directions = [''];
-        }
-
-        // Get array of frames
-        if (this._cycleType != CycleType.none) {
-            frames = [];
-
-            for (let i = 1; i <= this._numFrames; i++) {
-                frames.push(i.toString());
-            }
-        }
-        else {
-            frames = [''];
-        }
-
-        directions.forEach(function(dir) {
-            frames.forEach(function(frame) {
-                let img = new Image();
-                img.src = path + '/' + dir + frame + '.png';
-                preLoadedImages.push(img);
-            });
-        });
-
-        this._preLoadedImages = preLoadedImages;
     }
 }

@@ -31,19 +31,15 @@ class Player extends Transform {
 
         this._sprite = new Sprite(
             this,                   // 
-            "assets/hero",          // path
+            "assets/hero.png", // path
+            32,
             CycleType.boomerang,    // cycleType
             this.STEP_SPEED,        // cycleSpeed
-            true,                   // directional
+            Directional.eight,      // directional
             Direction.S,            // defaultDir
             3,                      // numFrames
+            2,
         );
-        
-        var actualImage = new Image();
-        actualImage.src = this.element.css('background-image').replace(/"/g,"").replace(/url\(|\)$/ig, "");
-
-        this.size.x = 2 * actualImage.width // The actual image width
-        this.size.y = 2 * actualImage.height // The actual image height
     }
 
     Pre(world: World): void {
@@ -66,16 +62,6 @@ class Player extends Transform {
 
         this.position.x += move.x * this.SPEED * world.deltaTime;
         this.position.y += move.y * this.SPEED * world.deltaTime;
-
-        // WALK IN DIRECTION OF MOVEMENT
-        let dir = this.Look();
-
-        let step = this.Step(world.deltaTime);
-
-        if (dir.length > 0) {
-            this.element.css("background-image",
-                "url('assets/hero/" + dir + step + ".png')"); // TODO load these images properly
-        }
 
         this._sprite.Update(world);
     }
@@ -143,53 +129,5 @@ class Player extends Transform {
     MouseMove(x: number, y: number) {
         this._control.mouseX = x;
         this._control.mouseY = y;
-    }
-
-    Look(): string {
-        let dir: string = '';
-
-        if (this._control.up) {
-            dir += 'N';
-        }
-        else if (this._control.down) {
-            dir += 'S';
-        }
-
-        if (this._control.left) {
-            dir += 'W';
-        }
-        else if (this._control.right) {
-            dir += 'E';
-        }
-
-        return dir;
-    }
-
-    Step(deltaTime: number): string {
-        let step: string = '';
-
-        if (this._control.up ||
-            this._control.down ||
-            this._control.left ||
-            this._control.right) {
-                this._steps += deltaTime;
-        }
-
-        this._steps = this._steps % (4 / this.STEP_SPEED);
-
-        if (this._steps < (1 / this.STEP_SPEED)) {
-            step = '1';
-        }
-        else if (this._steps < (2 / this.STEP_SPEED)) {
-            step = '2';
-        }
-        else if (this._steps < (3 / this.STEP_SPEED)) {
-            step = '3';
-        }
-        else {
-            step = '2';
-        }
-
-        return step;
     }
 }
