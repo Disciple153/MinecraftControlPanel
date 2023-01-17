@@ -72,6 +72,9 @@ var Vector = /** @class */ (function () {
     Vector.prototype.Subtract = function (vector) {
         return new Vector(this.x - vector.x, this.y - vector.y);
     };
+    Vector.prototype.Multiply = function (n) {
+        return new Vector(this.x * n, this.y * n);
+    };
     Vector.prototype.Normalize = function () {
         var h = Math.sqrt((Math.pow(this.x, 2)) + (Math.pow(this.y, 2)));
         return new Vector(this.x / h, this.y / h);

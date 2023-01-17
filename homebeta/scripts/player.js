@@ -15,7 +15,7 @@ var Player = /** @class */ (function (_super) {
     __extends(Player, _super);
     function Player() {
         var _this_1 = _super !== null && _super.apply(this, arguments) || this;
-        _this_1.SPEED = 0.2;
+        _this_1.SPEED = 2;
         _this_1.STEP_SPEED = 0.02;
         _this_1.points = 0;
         _this_1._steps = 0;
@@ -39,13 +39,13 @@ var Player = /** @class */ (function (_super) {
         this._steps = 0;
         this._sprite = new Sprite(this, // 
         "assets/hero.png", // path
+        10, // height
         32, // imgHeight
         CycleType.boomerang, // cycleType
         this.STEP_SPEED, // cycleSpeed
         Directional.eight, // directional
         Direction.S, // defaultDir
-        3, // numFrames
-        2);
+        3);
     };
     Player.prototype.Pre = function (world) {
         var move = new Vector(0, 0);
@@ -67,7 +67,8 @@ var Player = /** @class */ (function (_super) {
             this._destination = undefined;
         }
         if (this._destination) {
-            var destDelta = this._destination.Subtract(this.position);
+            var destDelta = this._destination.Subtract(this.size.Multiply(world.scale / 2))
+                .Subtract(this.position);
             if (Math.abs(destDelta.x) < 1.5 &&
                 Math.abs(destDelta.y) < 1.5) {
                 move = new Vector();
@@ -77,8 +78,8 @@ var Player = /** @class */ (function (_super) {
                 move = destDelta.Normalize();
             }
         }
-        this.position.x += move.x * this.SPEED * world.deltaTime;
-        this.position.y += move.y * this.SPEED * world.deltaTime;
+        this.position.x += move.x * this.SPEED * world.deltaTime * world.scale / 100;
+        this.position.y += move.y * this.SPEED * world.deltaTime * world.scale / 100;
         this._sprite.Update(world);
     };
     Player.prototype.Post = function (world) {
@@ -86,6 +87,9 @@ var Player = /** @class */ (function (_super) {
     Player.prototype.Collision = function (world) {
         var _this = this;
         this.collisions.forEach(function (collision) {
+            if (collision.transform instanceof Immovable) {
+                _this._destination = undefined;
+            }
         });
     };
     Player.prototype.KeyDown = function (key) {
@@ -133,7 +137,7 @@ var Player = /** @class */ (function (_super) {
         this._control.mouseY = y;
     };
     Player.prototype.Click = function (x, y) {
-        this._destination = new Vector(x - (this.size.x / 2), y - (this.size.y / 2));
+        this._destination = new Vector(x, y);
     };
     return Player;
 }(Transform));

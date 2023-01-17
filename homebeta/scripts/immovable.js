@@ -35,6 +35,6 @@ var Immovable = /** @class */ (function (_super) {
     };
     Immovable.prototype.Collision = function (world) { };
     // Do not move under any circumstance
-    Immovable.prototype.CorrectRelativeTo = function (collision) { };
+    Immovable.prototype.CorrectRelativeTo = function (world, collision) { };
     return Immovable;
 }(Transform));

@@ -50,18 +50,23 @@ var Transform = /** @class */ (function () {
         return transform;
     };
     // Functions
-    Transform.prototype.SetTransform = function () {
+    Transform.prototype.SetTransform = function (world, scaleChanged) {
         if (this.element != null &&
             (this.position.xChanged || this.position.yChanged
-                || this.size.xChanged || this.size.yChanged)) {
+                || this.size.xChanged || this.size.yChanged
+                || scaleChanged)) {
             if (this.position.xChanged)
                 this.element.css("left", this.position.x);
             if (this.position.yChanged)
                 this.element.css("top", this.position.y);
-            if (this.size.xChanged)
-                this.element.css("width", this.size.x);
-            if (this.size.yChanged)
-                this.element.css("height", this.size.y);
+            if (this.size.xChanged || scaleChanged)
+                this.element.css("width", this.size.x * world.scale);
+            if (this.size.yChanged || scaleChanged)
+                this.element.css("height", this.size.y * world.scale);
+        }
+        if (scaleChanged && '_sprite' in this) {
+            var sprite = this._sprite;
+            sprite.Update(world, true);
         }
     };
     Transform.prototype.Reset = function () {
@@ -112,15 +117,25 @@ var Transform = /** @class */ (function () {
         // If there was a valid collision
         if (that !== undefined &&
             _this.id != that.id && _this.collidable && that.collidable &&
-            _this.position.x + _this.size.x > that.position.x &&
-            _this.position.y + _this.size.y > that.position.y &&
-            _this.position.x < that.position.x + that.size.x &&
-            _this.position.y < that.position.y + that.size.y) {
+            _this.position.x + (_this.size.x * world.scale) > that.position.x &&
+            _this.position.y + (_this.size.y * world.scale) > that.position.y &&
+            _this.position.x < that.position.x + (that.size.x * world.scale) &&
+            _this.position.y < that.position.y + (that.size.y * world.scale)) {
+            // console.log(
+            //     '_this.position.x + (_this.size.x * world.scale) > that.position.x: ' +
+            //     (_this.position.x + (_this.size.x * world.scale)) + ' > ' + that.position.x + '\n' +
+            //     '_this.position.y + (_this.size.y * world.scale) > that.position.y: ' +
+            //     (_this.position.y + (_this.size.y * world.scale)) + ' > ' + that.position.y + '\n' +
+            //     '_this.position.x < that.position.x + (that.size.x * world.scale):  '  +
+            //     _this.position.x + ' < ' + (that.position.x + (that.size.x * world.scale)) + '\n' +
+            //     '_this.position.y < that.position.y + (that.size.y * world.scale):  '  +
+            //     _this.position.y + ' < ' + (that.position.y + (that.size.y * world.scale)) + '\n'
+            // );
             // Calculate depth of collision for each side
-            right = (_this.position.x + _this.size.x) - that.position.x;
-            bottom = (_this.position.y + _this.size.y) - that.position.y;
-            left = (that.position.x + that.size.x) - _this.position.x;
-            top = (that.position.y + that.size.y) - _this.position.y;
+            right = (_this.position.x + (_this.size.x * world.scale)) - that.position.x;
+            bottom = (_this.position.y + (_this.size.y * world.scale)) - that.position.y;
+            left = (that.position.x + (that.size.x * world.scale)) - _this.position.x;
+            top = (that.position.y + (that.size.y * world.scale)) - _this.position.y;
             // Determine on which side the collision is the most shallow
             // right and left
             if (right < left && right < top && right < bottom) {
@@ -134,31 +149,31 @@ var Transform = /** @class */ (function () {
             }
         }
     };
-    Transform.prototype.CorrectCollisions = function (hash) {
+    Transform.prototype.CorrectCollisions = function (world, hash) {
         var _this = this;
         if (_this.correctedHash != hash) {
             _this.correctedHash = hash;
             _this.collisions.forEach(function (collision) {
-                collision.transform.CorrectRelativeTo({
+                collision.transform.CorrectRelativeTo(world, {
                     transform: _this,
                     side: Transform.oppositeSide[collision.side]
                 });
-                collision.transform.CorrectCollisions(hash);
+                collision.transform.CorrectCollisions(world, hash);
             });
         }
     };
-    Transform.prototype.CorrectRelativeTo = function (collision) {
+    Transform.prototype.CorrectRelativeTo = function (world, collision) {
         if (collision.side == Side.right) {
-            this.position.x = collision.transform.position.x - this.size.x - 0.01;
+            this.position.x = collision.transform.position.x - (this.size.x * world.scale) - 0.01;
         }
         if (collision.side == Side.bottom) {
-            this.position.y = collision.transform.position.y - this.size.y - 0.01;
+            this.position.y = collision.transform.position.y - (this.size.y * world.scale) - 0.01;
         }
         if (collision.side == Side.left) {
-            this.position.x = collision.transform.position.x + collision.transform.size.x + 0.01;
+            this.position.x = collision.transform.position.x + (collision.transform.size.x * world.scale) + 0.01;
         }
         if (collision.side == Side.top) {
-            this.position.y = collision.transform.position.y + collision.transform.size.y + 0.01;
+            this.position.y = collision.transform.position.y + (collision.transform.size.y * world.scale) + 0.01;
         }
     };
     Transform.oppositeSide = [Side.none, Side.top, Side.right, Side.bottom, Side.left];

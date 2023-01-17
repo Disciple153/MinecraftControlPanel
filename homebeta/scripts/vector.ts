@@ -64,9 +64,14 @@ class Vector {
         return new Vector(this.x - vector.x, this.y - vector.y);
     }
 
+    Multiply(n: number): Vector {
+        return new Vector(this.x * n, this.y * n);
+    }
+
     Normalize(): Vector {
         let h: number = Math.sqrt((this.x ** 2) + (this.y ** 2));
 
         return new Vector(this.x / h, this.y / h);
     }
+
 }

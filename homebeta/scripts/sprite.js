@@ -23,14 +23,12 @@ var Directional;
     Directional[Directional["eight"] = 8] = "eight";
 })(Directional || (Directional = {}));
 var Sprite = /** @class */ (function () {
-    function Sprite(parent, path, imgHeight, cycleType, cycleSpeed, directional, defaultDir, numFrames, zoom) {
+    function Sprite(parent, path, height, imgHeight, cycleType, cycleSpeed, directional, defaultDir, numFrames) {
         if (cycleType === void 0) { cycleType = CycleType.none; }
         if (cycleSpeed === void 0) { cycleSpeed = 1; }
         if (directional === void 0) { directional = Directional.none; }
         if (defaultDir === void 0) { defaultDir = Direction.none; }
         if (numFrames === void 0) { numFrames = 0; }
-        if (zoom === void 0) { zoom = 0; }
-        var firstFrame;
         this._parent = parent;
         this._path = path;
         this._imgHeight = imgHeight;
@@ -39,27 +37,24 @@ var Sprite = /** @class */ (function () {
         this._directional = directional;
         this._defaultDir = defaultDir;
         this._numFrames = numFrames;
-        this._zoom = zoom;
+        this._height = height;
         if (this._directional) {
             this._direction = this._defaultDir;
         }
         else {
             this._direction = Direction.none;
         }
-        if (this._cycleType != CycleType.none) {
-            this._currentFrame = 0;
-            firstFrame = '1';
-        }
-        else {
-            firstFrame = '';
-        }
+        this._currentFrame = 0;
+        this._lastFrame = 0;
+        this._lastDir = this._defaultDir;
         this._parent.element.css("background-image", "url('" + this._path + "')");
         var actualImage = new Image();
         actualImage.src = this._parent.element.css('background-image').replace(/"/g, "").replace(/url\(|\)$/ig, "");
-        this._parent.size.x = this._zoom * actualImage.width; // The actual image width
-        this._parent.size.y = this._zoom * this._imgHeight; // The actual image height
+        this._parent.size.x = (this._height / this._imgHeight) * actualImage.width; // The actual image width
+        this._parent.size.y = (this._height / this._imgHeight) * this._imgHeight; // The actual image height
     }
-    Sprite.prototype.Update = function (world) {
+    Sprite.prototype.Update = function (world, scaleChanged) {
+        if (scaleChanged === void 0) { scaleChanged = false; }
         var frame;
         var dir;
         var pixelOffset;
@@ -74,7 +69,15 @@ var Sprite = /** @class */ (function () {
             if (this._directional) {
                 dir = this.GetDir();
             }
-            pixelOffset = ((dir * this._numFrames) + frame) * this._imgHeight * this._zoom;
+            this._lastFrame = frame;
+            this._lastDir = dir;
+            pixelOffset = ((dir * this._numFrames) + frame) *
+                this._height * world.scale;
+            this._parent.element.css("background-position-y", '-' + pixelOffset + 'px');
+        }
+        if (scaleChanged) {
+            pixelOffset = ((this._lastDir * this._numFrames) + this._lastFrame) *
+                this._height * world.scale;
             this._parent.element.css("background-position-y", '-' + pixelOffset + 'px');
         }
     };
@@ -100,30 +103,30 @@ var Sprite = /** @class */ (function () {
         }
         this._currentFrame = this._currentFrame % this._numFrames;
         frame = Math.floor(this._currentFrame);
-        console.log(frame);
         return frame;
     };
     Sprite.prototype.GetDir = function () {
         var dir;
-        var heading = this._parent.position.heading;
+        var heading = this._parent.position.heading.Normalize();
+        var threshhold = Math.sin(Math.PI / 8);
         if (this._parent.position.xChanged ||
             this._parent.position.yChanged) {
-            if (heading.y < 0) {
-                if (heading.x > 0) {
+            if (heading.y < -threshhold) {
+                if (heading.x > threshhold) {
                     dir = Direction.NE;
                 }
-                else if (heading.x < 0) {
+                else if (heading.x < -threshhold) {
                     dir = Direction.NW;
                 }
                 else {
                     dir = Direction.N;
                 }
             }
-            else if (heading.y > 0) {
-                if (heading.x > 0) {
+            else if (heading.y > threshhold) {
+                if (heading.x > threshhold) {
                     dir = Direction.SE;
                 }
-                else if (heading.x < 0) {
+                else if (heading.x < -threshhold) {
                     dir = Direction.SW;
                 }
                 else {
@@ -131,10 +134,10 @@ var Sprite = /** @class */ (function () {
                 }
             }
             else {
-                if (heading.x > 0) {
+                if (heading.x > threshhold) {
                     dir = Direction.E;
                 }
-                else if (heading.x < 0) {
+                else if (heading.x < -threshhold) {
                     dir = Direction.W;
                 }
                 else {

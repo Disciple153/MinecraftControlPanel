@@ -43,6 +43,8 @@ interface World {
     vMultiplier: number;
     player: Player;
     typeIDs: {};
+    dimensions: Vector;
+    scale: number;
 }
 
 interface Collision {
@@ -67,6 +69,7 @@ class Game {
     private static nextTransformID: number = 0;
     private static world: World;
     private static player: Player;
+    private static _scaleChanged: boolean;
     public static score: number = 0;
     public static state: State = State.menu;
     public static music: Sound;
@@ -165,17 +168,32 @@ class Game {
             Game.world.player.Click(x, y);
         }
     }
-
-
-    static Menu() {
-        $('#Menu').show();
-    }
     
     static Start() {
         Game.music = new Sound("assets/WeightoftheWorldtheEndofYoRHa.mp3", true);
         Game.html = $("#Game").html();
         Game.state = State.play;
         Game.Play().then();
+    }
+
+    static Resize() {
+        MAX_WIDTH = $(window).width() - 5;
+        MAX_HEIGHT = $(window).height() - 5;
+
+        Game.world.dimensions = new Vector($(window).width(), $(window).height());
+        Game.world.scale = Math.sqrt(Game.world.dimensions.x * Game.world.dimensions.y) / 100;
+
+        this._scaleChanged = true;
+
+        // Fix Borders
+        Game.world.gameObjects["topBorder"].size.x = Game.world.dimensions.x / Game.world.scale;
+        Game.world.gameObjects["topBorder"].size.y = 1000 / Game.world.scale
+        Game.world.gameObjects["bottomBorder"].position.y = Game.world.dimensions.y;
+        Game.world.gameObjects["bottomBorder"].size.x = Game.world.dimensions.x / Game.world.scale;
+        Game.world.gameObjects["leftBorder"].size.x = 1000 / Game.world.scale;
+        Game.world.gameObjects["leftBorder"].size.y = Game.world.dimensions.y / Game.world.scale;
+        Game.world.gameObjects["rightBorder"].position.x = Game.world.dimensions.x;
+        Game.world.gameObjects["rightBorder"].size.y = Game.world.dimensions.y / Game.world.scale;
     }
 
     /**
@@ -186,6 +204,7 @@ class Game {
         let newTime: number;
         MAX_WIDTH = $(window).width() - 5;
         MAX_HEIGHT = $(window).height() - 5;
+        let dimensions: Vector = new Vector($(window).width(), $(window).height());
 
         Game.music.Play();
 
@@ -206,14 +225,19 @@ class Game {
             typeIDs: {
                 "Player": [],
                 "Immovable": []
-            }
+            },
+            dimensions: dimensions,
+            scale: Math.sqrt(dimensions.x * dimensions.y) / 100,
         };
 
-        // Create collision for the screen
-        Game.world.gameObjects["topBorder"] = new Immovable(null, 0, -1000, MAX_WIDTH, 1000, "topBorder");
-        Game.world.gameObjects["bottomBorder"] = new Immovable(null, 0, MAX_HEIGHT, MAX_WIDTH, 1000, "bottomBorder");
-        Game.world.gameObjects["leftBorder"] = new Immovable(null, -1000, 0, 1000, MAX_HEIGHT, "leftBorder");
-        Game.world.gameObjects["rightBorder"] = new Immovable(null, MAX_WIDTH, 0, 1000, MAX_HEIGHT, "rightBorder");
+
+        // Create collision for the screen                        px, py,   sx,  sy
+        Game.world.gameObjects["topBorder"] = new Immovable(null, 0, -1000, Game.world.dimensions.x / Game.world.scale, 1000 / Game.world.scale, "topBorder");
+        Game.world.gameObjects["bottomBorder"] = new Immovable(null, 0, MAX_HEIGHT, 100, 1000, "bottomBorder");
+        Game.world.gameObjects["leftBorder"] = new Immovable(null, -1000, 0, 1000, 100, "leftBorder");
+        Game.world.gameObjects["rightBorder"] = new Immovable(null, MAX_WIDTH, 0, 1000, 100, "rightBorder");
+
+        Game.Resize();
 
         // Get all gameObjects and put them in a dictionary as transforms.
         Array.from($(".GameObject")).forEach(function (value) {
@@ -242,11 +266,11 @@ class Game {
         ////////////////////////////////////////////////////////////////////////
         Game.world.player = <Player> Game.AddTransform("Player", "player");
         Game.world.player.position.x = MAX_WIDTH / 2;
-        Game.world.player.position.y = (7 * MAX_HEIGHT) / 8;
+        Game.world.player.position.y = MAX_HEIGHT / 2;
         Game.world.player.Init(Game.world);
 
         // Start Game
-        $("#Game").show();
+        //$("#Game").show();
 
         while (Game.state == State.play) {
             // Update time
@@ -278,12 +302,12 @@ class Game {
 
             // Correct collisions for GameObjects colliding with Immovables
             Game.world.immovables.forEach(function (id, hash) {
-                Game.world.gameObjects[id].CorrectCollisions(hash);
+                Game.world.gameObjects[id].CorrectCollisions(Game.world, hash);
             });
 
             // Correct collisions for GameObjects colliding with movables
             Game.world.movables.forEach(function (id, hash) {
-                Game.world.gameObjects[id].CorrectCollisions(hash + Game.world.immovables.length);
+                Game.world.gameObjects[id].CorrectCollisions(Game.world, hash + Game.world.immovables.length);
             });
 
             // React to collisions
@@ -297,8 +321,11 @@ class Game {
             });
 
             // Update all positions.
+            let scaleChanged = this._scaleChanged;
+            this._scaleChanged = false;
+
             Game.world.ids.forEach(function (id) {
-                Game.world.gameObjects[id].SetTransform();
+                Game.world.gameObjects[id].SetTransform(Game.world, scaleChanged);
                 Game.world.gameObjects[id].Reset();
             });
 
@@ -421,6 +448,10 @@ $(document).mousemove(function (e) {
 
 $(document).click(function(e) {
     Game.Click(e.pageX, e.pageY);
+});
+
+$(window).resize(function(e) {
+    Game.Resize();
 });
 
 /*

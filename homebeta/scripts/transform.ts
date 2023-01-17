@@ -77,21 +77,28 @@ class Transform {
     }
 
     // Functions
-    SetTransform(): void {
+    SetTransform(world: World, scaleChanged: boolean): void {
         if (this.element != null &&
             (this.position.xChanged || this.position.yChanged
-                || this.size.xChanged || this.size.yChanged)) {
+                || this.size.xChanged || this.size.yChanged
+                || scaleChanged)) {
+
             if (this.position.xChanged)
                 this.element.css("left", this.position.x);
 
             if (this.position.yChanged)
                 this.element.css("top", this.position.y);
 
-            if (this.size.xChanged)
-                this.element.css("width", this.size.x);
+            if (this.size.xChanged || scaleChanged)
+                this.element.css("width", this.size.x * world.scale);
 
-            if (this.size.yChanged)
-                this.element.css("height", this.size.y);
+            if (this.size.yChanged || scaleChanged)
+                this.element.css("height", this.size.y * world.scale);
+        }
+
+        if (scaleChanged && '_sprite' in this) {
+            let sprite: Sprite = this._sprite as Sprite;
+            sprite.Update(world, true);
         }
     }
 
@@ -154,16 +161,27 @@ class Transform {
         // If there was a valid collision
         if (that !== undefined &&
             _this.id != that.id && _this.collidable && that.collidable &&
-            _this.position.x + _this.size.x > that.position.x &&
-            _this.position.y + _this.size.y > that.position.y &&
-            _this.position.x < that.position.x + that.size.x &&
-            _this.position.y < that.position.y + that.size.y) {
+            _this.position.x + (_this.size.x * world.scale) > that.position.x &&
+            _this.position.y + (_this.size.y * world.scale) > that.position.y &&
+            _this.position.x < that.position.x + (that.size.x * world.scale) &&
+            _this.position.y < that.position.y + (that.size.y * world.scale)) {
+
+            // console.log(
+            //     '_this.position.x + (_this.size.x * world.scale) > that.position.x: ' +
+            //     (_this.position.x + (_this.size.x * world.scale)) + ' > ' + that.position.x + '\n' +
+            //     '_this.position.y + (_this.size.y * world.scale) > that.position.y: ' +
+            //     (_this.position.y + (_this.size.y * world.scale)) + ' > ' + that.position.y + '\n' +
+            //     '_this.position.x < that.position.x + (that.size.x * world.scale):  '  +
+            //     _this.position.x + ' < ' + (that.position.x + (that.size.x * world.scale)) + '\n' +
+            //     '_this.position.y < that.position.y + (that.size.y * world.scale):  '  +
+            //     _this.position.y + ' < ' + (that.position.y + (that.size.y * world.scale)) + '\n'
+            // );
 
             // Calculate depth of collision for each side
-            right = (_this.position.x + _this.size.x) - that.position.x;
-            bottom = (_this.position.y + _this.size.y) - that.position.y;
-            left = (that.position.x + that.size.x) - _this.position.x;
-            top = (that.position.y + that.size.y) - _this.position.y;
+            right = (_this.position.x + (_this.size.x * world.scale)) - that.position.x;
+            bottom = (_this.position.y + (_this.size.y * world.scale)) - that.position.y;
+            left = (that.position.x + (that.size.x * world.scale)) - _this.position.x;
+            top = (that.position.y + (that.size.y * world.scale)) - _this.position.y;
 
             // Determine on which side the collision is the most shallow
             // right and left
@@ -179,35 +197,35 @@ class Transform {
         }
     }
 
-    CorrectCollisions(hash: number): void {
+    CorrectCollisions(world: World, hash: number): void {
         let _this = this;
 
         if (_this.correctedHash != hash) {
             _this.correctedHash = hash;
 
             _this.collisions.forEach(function (collision: Collision) {
-                collision.transform.CorrectRelativeTo({
+                collision.transform.CorrectRelativeTo(world, {
                     transform: _this,
                     side: Transform.oppositeSide[collision.side]
                 });
 
-                collision.transform.CorrectCollisions(hash);
+                collision.transform.CorrectCollisions(world, hash);
             });
         }
     }
 
-    CorrectRelativeTo(collision: Collision): void {
+    CorrectRelativeTo(world: World, collision: Collision): void {
         if (collision.side == Side.right) {
-            this.position.x = collision.transform.position.x - this.size.x - 0.01;
+            this.position.x = collision.transform.position.x - (this.size.x * world.scale) - 0.01;
         }
         if (collision.side == Side.bottom) {
-            this.position.y = collision.transform.position.y - this.size.y - 0.01;
+            this.position.y = collision.transform.position.y - (this.size.y * world.scale) - 0.01;
         }
         if (collision.side == Side.left) {
-            this.position.x = collision.transform.position.x + collision.transform.size.x + 0.01;
+            this.position.x = collision.transform.position.x + (collision.transform.size.x * world.scale) + 0.01;
         }
         if (collision.side == Side.top) {
-            this.position.y = collision.transform.position.y + collision.transform.size.y + 0.01;
+            this.position.y = collision.transform.position.y + (collision.transform.size.y * world.scale) + 0.01;
         }
     }
 }

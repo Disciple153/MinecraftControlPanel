@@ -1,5 +1,5 @@
 class Player extends Transform {
-    SPEED: number = 0.2;
+    SPEED: number = 2;
     STEP_SPEED: number = 0.02;
 
     public points: number = 0;
@@ -33,13 +33,13 @@ class Player extends Transform {
         this._sprite = new Sprite(
             this,                   // 
             "assets/hero.png",      // path
+            10,                     // height
             32,                     // imgHeight
             CycleType.boomerang,    // cycleType
             this.STEP_SPEED,        // cycleSpeed
             Directional.eight,      // directional
             Direction.S,            // defaultDir
             3,                      // numFrames
-            2,                      // zoom
         );
     }
 
@@ -66,7 +66,8 @@ class Player extends Transform {
         }
 
         if (this._destination) {
-            let destDelta: Vector = this._destination.Subtract(this.position)
+            let destDelta: Vector = this._destination.Subtract(this.size.Multiply(world.scale / 2))
+                                                     .Subtract(this.position);
 
             if (Math.abs(destDelta.x) < 1.5 &&
                 Math.abs(destDelta.y) < 1.5) {
@@ -78,8 +79,8 @@ class Player extends Transform {
             }
         }
 
-        this.position.x += move.x * this.SPEED * world.deltaTime;
-        this.position.y += move.y * this.SPEED * world.deltaTime;
+        this.position.x += move.x * this.SPEED * world.deltaTime * world.scale / 100;
+        this.position.y += move.y * this.SPEED * world.deltaTime * world.scale / 100;
 
         this._sprite.Update(world);
     }
@@ -91,6 +92,9 @@ class Player extends Transform {
         let _this = this;
 
         this.collisions.forEach(function (collision) {
+            if (collision.transform instanceof Immovable) {
+                _this._destination = undefined;
+            }
         });
     }
 
@@ -150,6 +154,6 @@ class Player extends Transform {
     }
 
     Click(x: number, y: number) {
-        this._destination = new Vector(x - (this.size.x / 2), y - (this.size.y / 2));
+        this._destination = new Vector(x, y);
     }
 }

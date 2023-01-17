@@ -20,6 +20,6 @@ class Immovable extends Transform {
     Collision(world: World): void {}
 
     // Do not move under any circumstance
-    CorrectRelativeTo(collision: Collision): void {}
+    CorrectRelativeTo(world: World, collision: Collision): void {}
 
 }

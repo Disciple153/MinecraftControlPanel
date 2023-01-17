@@ -136,14 +136,27 @@ var Game = /** @class */ (function () {
             Game.world.player.Click(x, y);
         }
     };
-    Game.Menu = function () {
-        $('#Menu').show();
-    };
     Game.Start = function () {
         Game.music = new Sound("assets/WeightoftheWorldtheEndofYoRHa.mp3", true);
         Game.html = $("#Game").html();
         Game.state = State.play;
         Game.Play().then();
+    };
+    Game.Resize = function () {
+        MAX_WIDTH = $(window).width() - 5;
+        MAX_HEIGHT = $(window).height() - 5;
+        Game.world.dimensions = new Vector($(window).width(), $(window).height());
+        Game.world.scale = Math.sqrt(Game.world.dimensions.x * Game.world.dimensions.y) / 100;
+        this._scaleChanged = true;
+        // Fix Borders
+        Game.world.gameObjects["topBorder"].size.x = Game.world.dimensions.x / Game.world.scale;
+        Game.world.gameObjects["topBorder"].size.y = 1000 / Game.world.scale;
+        Game.world.gameObjects["bottomBorder"].position.y = Game.world.dimensions.y;
+        Game.world.gameObjects["bottomBorder"].size.x = Game.world.dimensions.x / Game.world.scale;
+        Game.world.gameObjects["leftBorder"].size.x = 1000 / Game.world.scale;
+        Game.world.gameObjects["leftBorder"].size.y = Game.world.dimensions.y / Game.world.scale;
+        Game.world.gameObjects["rightBorder"].position.x = Game.world.dimensions.x;
+        Game.world.gameObjects["rightBorder"].size.y = Game.world.dimensions.y / Game.world.scale;
     };
     /**
      * The main function that controls the game.
@@ -151,12 +164,13 @@ var Game = /** @class */ (function () {
      */
     Game.Play = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var newTime, i, id, index, key;
+            var newTime, dimensions, _loop_1, this_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         MAX_WIDTH = $(window).width() - 5;
                         MAX_HEIGHT = $(window).height() - 5;
+                        dimensions = new Vector($(window).width(), $(window).height());
                         Game.music.Play();
                         $("#Game").html(Game.html);
                         $("#Score").html("" + 0);
@@ -173,13 +187,16 @@ var Game = /** @class */ (function () {
                             typeIDs: {
                                 "Player": [],
                                 "Immovable": []
-                            }
+                            },
+                            dimensions: dimensions,
+                            scale: Math.sqrt(dimensions.x * dimensions.y) / 100,
                         };
-                        // Create collision for the screen
-                        Game.world.gameObjects["topBorder"] = new Immovable(null, 0, -1000, MAX_WIDTH, 1000, "topBorder");
-                        Game.world.gameObjects["bottomBorder"] = new Immovable(null, 0, MAX_HEIGHT, MAX_WIDTH, 1000, "bottomBorder");
-                        Game.world.gameObjects["leftBorder"] = new Immovable(null, -1000, 0, 1000, MAX_HEIGHT, "leftBorder");
-                        Game.world.gameObjects["rightBorder"] = new Immovable(null, MAX_WIDTH, 0, 1000, MAX_HEIGHT, "rightBorder");
+                        // Create collision for the screen                        px, py,   sx,  sy
+                        Game.world.gameObjects["topBorder"] = new Immovable(null, 0, -1000, Game.world.dimensions.x / Game.world.scale, 1000 / Game.world.scale, "topBorder");
+                        Game.world.gameObjects["bottomBorder"] = new Immovable(null, 0, MAX_HEIGHT, 100, 1000, "bottomBorder");
+                        Game.world.gameObjects["leftBorder"] = new Immovable(null, -1000, 0, 1000, 100, "leftBorder");
+                        Game.world.gameObjects["rightBorder"] = new Immovable(null, MAX_WIDTH, 0, 1000, 100, "rightBorder");
+                        Game.Resize();
                         // Get all gameObjects and put them in a dictionary as transforms.
                         Array.from($(".GameObject")).forEach(function (value) {
                             Game.world.gameObjects[value.id] = Transform.GetTransform(value);
@@ -204,98 +221,110 @@ var Game = /** @class */ (function () {
                         ////////////////////////////////////////////////////////////////////////
                         Game.world.player = Game.AddTransform("Player", "player");
                         Game.world.player.position.x = MAX_WIDTH / 2;
-                        Game.world.player.position.y = (7 * MAX_HEIGHT) / 8;
+                        Game.world.player.position.y = MAX_HEIGHT / 2;
                         Game.world.player.Init(Game.world);
-                        // Start Game
-                        $("#Game").show();
+                        _loop_1 = function () {
+                            var scaleChanged, i, id, index, key;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        // Update time
+                                        newTime = Date.now();
+                                        Game.world.deltaTime = newTime - Game.world.time;
+                                        if (Game.world.deltaTime > 100) {
+                                            Game.world.deltaTime = 100;
+                                        }
+                                        Game.world.time = newTime;
+                                        Game.world.vMultiplier = Game.world.deltaTime / 1000;
+                                        // Run all pre functions.
+                                        Game.world.ids.forEach(function (id) {
+                                            Game.world.gameObjects[id].Pre(Game.world);
+                                        });
+                                        // Update all transforms.
+                                        Game.world.ids.forEach(function (id) {
+                                            Game.world.gameObjects[id].ApplyVelocity(Game.world.vMultiplier);
+                                        });
+                                        // Detect collisions
+                                        Game.world.ids.forEach(function (id) {
+                                            Game.world.gameObjects[id].DetectCollisions(Game.world);
+                                        });
+                                        // Correct collisions for GameObjects colliding with Immovables
+                                        Game.world.immovables.forEach(function (id, hash) {
+                                            Game.world.gameObjects[id].CorrectCollisions(Game.world, hash);
+                                        });
+                                        // Correct collisions for GameObjects colliding with movables
+                                        Game.world.movables.forEach(function (id, hash) {
+                                            Game.world.gameObjects[id].CorrectCollisions(Game.world, hash + Game.world.immovables.length);
+                                        });
+                                        // React to collisions
+                                        Game.world.ids.forEach(function (id) {
+                                            Game.world.gameObjects[id].Collision(Game.world);
+                                        });
+                                        // Run all post functions.
+                                        Game.world.ids.forEach(function (id) {
+                                            Game.world.gameObjects[id].Post(Game.world);
+                                        });
+                                        scaleChanged = this_1._scaleChanged;
+                                        this_1._scaleChanged = false;
+                                        Game.world.ids.forEach(function (id) {
+                                            Game.world.gameObjects[id].SetTransform(Game.world, scaleChanged);
+                                            Game.world.gameObjects[id].Reset();
+                                        });
+                                        // Check to see if any GameObjects are scheduled to be deleted, and delete them.
+                                        for (i = 0; i < Game.world.ids.length; i++) {
+                                            id = Game.world.ids[i];
+                                            index = void 0;
+                                            if (Game.world.gameObjects[id].toDelete) {
+                                                // Remove object from DOM
+                                                Game.world.gameObjects[id].element.remove();
+                                                // Delete key from immovables array
+                                                index = Game.world.immovables.indexOf(id);
+                                                if (index !== -1)
+                                                    Game.world.immovables.splice(index, 1);
+                                                // Delete key from movables array
+                                                index = Game.world.movables.indexOf(id);
+                                                if (index !== -1)
+                                                    Game.world.movables.splice(index, 1);
+                                                // Delete key from specific class array
+                                                for (key in Game.world.typeIDs) {
+                                                    // Check if this is the correct array to delete from
+                                                    if (Game.world.gameObjects[id].constructor.name == key) {
+                                                        index = Game.world.typeIDs[key].indexOf(id);
+                                                        // If the key is in the array, delete it.
+                                                        if (index !== -1) {
+                                                            Game.world.typeIDs[key].splice(index, 1);
+                                                        }
+                                                    }
+                                                }
+                                                // Delete key from ids array
+                                                Game.world.ids.splice(i, 1);
+                                                // Delete transfrom from world
+                                                delete Game.world.gameObjects[id];
+                                                i--;
+                                            }
+                                        }
+                                        ////////////////////////////////////////////////////////////////////
+                                        // UPDATE SCOREBOARD
+                                        ////////////////////////////////////////////////////////////////////
+                                        $("#scoreboard").html("Score: " + Game.score);
+                                        if (!(Date.now() - Game.world.time <= 10)) return [3 /*break*/, 2];
+                                        return [4 /*yield*/, Game.Delay(10)];
+                                    case 1:
+                                        _a.sent();
+                                        _a.label = 2;
+                                    case 2: return [2 /*return*/];
+                                }
+                            });
+                        };
+                        this_1 = this;
                         _a.label = 1;
                     case 1:
-                        if (!(Game.state == State.play)) return [3 /*break*/, 4];
-                        // Update time
-                        newTime = Date.now();
-                        Game.world.deltaTime = newTime - Game.world.time;
-                        if (Game.world.deltaTime > 100) {
-                            Game.world.deltaTime = 100;
-                        }
-                        Game.world.time = newTime;
-                        Game.world.vMultiplier = Game.world.deltaTime / 1000;
-                        // Run all pre functions.
-                        Game.world.ids.forEach(function (id) {
-                            Game.world.gameObjects[id].Pre(Game.world);
-                        });
-                        // Update all transforms.
-                        Game.world.ids.forEach(function (id) {
-                            Game.world.gameObjects[id].ApplyVelocity(Game.world.vMultiplier);
-                        });
-                        // Detect collisions
-                        Game.world.ids.forEach(function (id) {
-                            Game.world.gameObjects[id].DetectCollisions(Game.world);
-                        });
-                        // Correct collisions for GameObjects colliding with Immovables
-                        Game.world.immovables.forEach(function (id, hash) {
-                            Game.world.gameObjects[id].CorrectCollisions(hash);
-                        });
-                        // Correct collisions for GameObjects colliding with movables
-                        Game.world.movables.forEach(function (id, hash) {
-                            Game.world.gameObjects[id].CorrectCollisions(hash + Game.world.immovables.length);
-                        });
-                        // React to collisions
-                        Game.world.ids.forEach(function (id) {
-                            Game.world.gameObjects[id].Collision(Game.world);
-                        });
-                        // Run all post functions.
-                        Game.world.ids.forEach(function (id) {
-                            Game.world.gameObjects[id].Post(Game.world);
-                        });
-                        // Update all positions.
-                        Game.world.ids.forEach(function (id) {
-                            Game.world.gameObjects[id].SetTransform();
-                            Game.world.gameObjects[id].Reset();
-                        });
-                        // Check to see if any GameObjects are scheduled to be deleted, and delete them.
-                        for (i = 0; i < Game.world.ids.length; i++) {
-                            id = Game.world.ids[i];
-                            index = void 0;
-                            if (Game.world.gameObjects[id].toDelete) {
-                                // Remove object from DOM
-                                Game.world.gameObjects[id].element.remove();
-                                // Delete key from immovables array
-                                index = Game.world.immovables.indexOf(id);
-                                if (index !== -1)
-                                    Game.world.immovables.splice(index, 1);
-                                // Delete key from movables array
-                                index = Game.world.movables.indexOf(id);
-                                if (index !== -1)
-                                    Game.world.movables.splice(index, 1);
-                                // Delete key from specific class array
-                                for (key in Game.world.typeIDs) {
-                                    // Check if this is the correct array to delete from
-                                    if (Game.world.gameObjects[id].constructor.name == key) {
-                                        index = Game.world.typeIDs[key].indexOf(id);
-                                        // If the key is in the array, delete it.
-                                        if (index !== -1) {
-                                            Game.world.typeIDs[key].splice(index, 1);
-                                        }
-                                    }
-                                }
-                                // Delete key from ids array
-                                Game.world.ids.splice(i, 1);
-                                // Delete transfrom from world
-                                delete Game.world.gameObjects[id];
-                                i--;
-                            }
-                        }
-                        ////////////////////////////////////////////////////////////////////
-                        // UPDATE SCOREBOARD
-                        ////////////////////////////////////////////////////////////////////
-                        $("#scoreboard").html("Score: " + Game.score);
-                        if (!(Date.now() - Game.world.time <= 10)) return [3 /*break*/, 3];
-                        return [4 /*yield*/, Game.Delay(10)];
+                        if (!(Game.state == State.play)) return [3 /*break*/, 3];
+                        return [5 /*yield**/, _loop_1()];
                     case 2:
                         _a.sent();
-                        _a.label = 3;
-                    case 3: return [3 /*break*/, 1];
-                    case 4:
+                        return [3 /*break*/, 1];
+                    case 3:
                         //$('#Game').hide();
                         Game.GameOver();
                         return [2 /*return*/];
@@ -356,6 +385,9 @@ $(document).mousemove(function (e) {
 });
 $(document).click(function (e) {
     Game.Click(e.pageX, e.pageY);
+});
+$(window).resize(function (e) {
+    Game.Resize();
 });
 /*
 

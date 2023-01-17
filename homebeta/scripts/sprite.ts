@@ -34,22 +34,22 @@ class Sprite {
     _numFrames: number;
     _currentFrame: number;
     _preLoadedImages: HTMLImageElement[];
-    _zoom: number;
+    _height: number;
     _imgHeight: number;
+    _lastDir: Direction;
+    _lastFrame: number;
 
     constructor(
             parent: Transform,
             path: string, 
+            height: number,
             imgHeight: number,
             cycleType: CycleType = CycleType.none,
             cycleSpeed: number = 1,
             directional: Directional = Directional.none,
             defaultDir: Direction = Direction.none,
             numFrames: number = 0,
-            zoom: number = 0,
         ) {
-
-        let firstFrame: string;
 
         this._parent = parent;
         this._path = path;
@@ -59,7 +59,7 @@ class Sprite {
         this._directional = directional;
         this._defaultDir = defaultDir;
         this._numFrames = numFrames
-        this._zoom = zoom;
+        this._height = height;
         
         if (this._directional) {
             this._direction = this._defaultDir;
@@ -68,13 +68,9 @@ class Sprite {
             this._direction = Direction.none;
         }
 
-        if (this._cycleType != CycleType.none) {
-            this._currentFrame = 0;
-            firstFrame = '1';
-        }
-        else {
-            firstFrame = '';
-        }
+        this._currentFrame = 0;
+        this._lastFrame = 0;
+        this._lastDir = this._defaultDir;
             
         this._parent.element.css("background-image",
             "url('" + this._path + "')");
@@ -82,11 +78,11 @@ class Sprite {
         var actualImage = new Image();
         actualImage.src = this._parent.element.css('background-image').replace(/"/g,"").replace(/url\(|\)$/ig, "");
 
-        this._parent.size.x = this._zoom * actualImage.width // The actual image width
-        this._parent.size.y = this._zoom * this._imgHeight // The actual image height
+        this._parent.size.x = (this._height / this._imgHeight) * actualImage.width // The actual image width
+        this._parent.size.y = (this._height / this._imgHeight) * this._imgHeight // The actual image height
     }
 
-    Update(world: World) {
+    Update(world: World, scaleChanged: boolean = false) {
         let frame: number;
         let dir: number;
         let pixelOffset: number;
@@ -104,7 +100,19 @@ class Sprite {
                 dir = this.GetDir();
             }
 
-            pixelOffset = ((dir * this._numFrames) + frame) * this._imgHeight * this._zoom;
+            this._lastFrame = frame;
+            this._lastDir = dir;
+
+            pixelOffset = ((dir * this._numFrames) + frame) *
+                this._height * world.scale;
+
+            this._parent.element.css("background-position-y",
+                '-' + pixelOffset + 'px');
+        }
+
+        if (scaleChanged) {
+            pixelOffset = ((this._lastDir * this._numFrames) + this._lastFrame) *
+                this._height * world.scale;
 
             this._parent.element.css("background-position-y",
                 '-' + pixelOffset + 'px');
@@ -143,34 +151,33 @@ class Sprite {
 
         frame = Math.floor(this._currentFrame);
 
-        console.log(frame);
-
         return frame;
     }
 
     GetDir(): number {
         let dir: number;
-        let heading: Vector = this._parent.position.heading;
+        let heading: Vector = this._parent.position.heading.Normalize();
+        let threshhold: number = Math.sin(Math.PI / 8);
 
         if (this._parent.position.xChanged || 
             this._parent.position.yChanged) {
 
-            if (heading.y < 0) {
-                if (heading.x > 0) {
+            if (heading.y < -threshhold) {
+                if (heading.x > threshhold) {
                     dir = Direction.NE;
                 }
-                else if (heading.x < 0) {
+                else if (heading.x < -threshhold) {
                     dir = Direction.NW;
                 }
                 else {
                     dir = Direction.N;
                 }
             }
-            else if (heading.y > 0) {
-                if (heading.x > 0) {
+            else if (heading.y > threshhold) {
+                if (heading.x > threshhold) {
                     dir = Direction.SE;
                 }
-                else if (heading.x < 0) {
+                else if (heading.x < -threshhold) {
                     dir = Direction.SW;
                 }
                 else {
@@ -178,10 +185,10 @@ class Sprite {
                 }
             }
             else {
-                if (heading.x > 0) {
+                if (heading.x > threshhold) {
                     dir = Direction.E;
                 }
-                else if (heading.x < 0) {
+                else if (heading.x < -threshhold) {
                     dir = Direction.W;
                 }
                 else {
