@@ -8,6 +8,7 @@ class Player extends Transform {
     private _laserSounds: Sound[];
     private _steps: number = 0;
     private _sprite: Sprite;
+    private _destination: Vector;
 
     Init(world: World): void {
         this.collidable = true;
@@ -31,14 +32,14 @@ class Player extends Transform {
 
         this._sprite = new Sprite(
             this,                   // 
-            "assets/hero.png", // path
-            32,
+            "assets/hero.png",      // path
+            32,                     // imgHeight
             CycleType.boomerang,    // cycleType
             this.STEP_SPEED,        // cycleSpeed
             Directional.eight,      // directional
             Direction.S,            // defaultDir
             3,                      // numFrames
-            2,
+            2,                      // zoom
         );
     }
 
@@ -48,16 +49,33 @@ class Player extends Transform {
         // MOVE
         if (this._control.left) {
             move.x -= 1;
+            this._destination = undefined;
         }
         if (this._control.right) {
             move.x += 1;
+            this._destination = undefined;
         }
 
         if (this._control.up) {
             move.y -= 1;
+            this._destination = undefined;
         }
         if (this._control.down) {
             move.y += 1;
+            this._destination = undefined;
+        }
+
+        if (this._destination) {
+            let destDelta: Vector = this._destination.Subtract(this.position)
+
+            if (Math.abs(destDelta.x) < 1.5 &&
+                Math.abs(destDelta.y) < 1.5) {
+                move = new Vector();
+                this._destination = undefined;
+            }
+            else {
+                move = destDelta.Normalize();
+            }
         }
 
         this.position.x += move.x * this.SPEED * world.deltaTime;
@@ -129,5 +147,9 @@ class Player extends Transform {
     MouseMove(x: number, y: number) {
         this._control.mouseX = x;
         this._control.mouseY = y;
+    }
+
+    Click(x: number, y: number) {
+        this._destination = new Vector(x - (this.size.x / 2), y - (this.size.y / 2));
     }
 }

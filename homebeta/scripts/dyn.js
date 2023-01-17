@@ -131,6 +131,11 @@ var Game = /** @class */ (function () {
             Game.world.player.MouseMove(x, y);
         }
     };
+    Game.Click = function (x, y) {
+        if (Game.state === State.play) {
+            Game.world.player.Click(x, y);
+        }
+    };
     Game.Menu = function () {
         $('#Menu').show();
     };
@@ -348,6 +353,9 @@ $(document).mouseup(function () {
 // noinspection JSDeprecatedSymbols
 $(document).mousemove(function (e) {
     Game.MouseMove(e.originalEvent.clientX, e.originalEvent.clientY);
+});
+$(document).click(function (e) {
+    Game.Click(e.pageX, e.pageY);
 });
 /*
 

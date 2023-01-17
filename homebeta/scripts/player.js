@@ -39,7 +39,8 @@ var Player = /** @class */ (function (_super) {
         this._steps = 0;
         this._sprite = new Sprite(this, // 
         "assets/hero.png", // path
-        32, CycleType.boomerang, // cycleType
+        32, // imgHeight
+        CycleType.boomerang, // cycleType
         this.STEP_SPEED, // cycleSpeed
         Directional.eight, // directional
         Direction.S, // defaultDir
@@ -51,15 +52,30 @@ var Player = /** @class */ (function (_super) {
         // MOVE
         if (this._control.left) {
             move.x -= 1;
+            this._destination = undefined;
         }
         if (this._control.right) {
             move.x += 1;
+            this._destination = undefined;
         }
         if (this._control.up) {
             move.y -= 1;
+            this._destination = undefined;
         }
         if (this._control.down) {
             move.y += 1;
+            this._destination = undefined;
+        }
+        if (this._destination) {
+            var destDelta = this._destination.Subtract(this.position);
+            if (Math.abs(destDelta.x) < 1.5 &&
+                Math.abs(destDelta.y) < 1.5) {
+                move = new Vector();
+                this._destination = undefined;
+            }
+            else {
+                move = destDelta.Normalize();
+            }
         }
         this.position.x += move.x * this.SPEED * world.deltaTime;
         this.position.y += move.y * this.SPEED * world.deltaTime;
@@ -115,6 +131,9 @@ var Player = /** @class */ (function (_super) {
     Player.prototype.MouseMove = function (x, y) {
         this._control.mouseX = x;
         this._control.mouseY = y;
+    };
+    Player.prototype.Click = function (x, y) {
+        this._destination = new Vector(x - (this.size.x / 2), y - (this.size.y / 2));
     };
     return Player;
 }(Transform));

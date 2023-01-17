@@ -47,4 +47,26 @@ class Vector {
         this._xOld = this._x;
         this._yOld = this._y;
     }
+
+    Add(...vectors: Vector[]): Vector {
+        let x = this.x;
+        let y = this.y;
+
+        vectors.forEach(function(v) {
+            x += v.x;
+            y += v.y;
+        })
+
+        return new Vector(x, y);
+    }
+
+    Subtract(vector: Vector): Vector {
+        return new Vector(this.x - vector.x, this.y - vector.y);
+    }
+
+    Normalize(): Vector {
+        let h: number = Math.sqrt((this.x ** 2) + (this.y ** 2));
+
+        return new Vector(this.x / h, this.y / h);
+    }
 }

@@ -56,5 +56,25 @@ var Vector = /** @class */ (function () {
         this._xOld = this._x;
         this._yOld = this._y;
     };
+    Vector.prototype.Add = function () {
+        var vectors = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            vectors[_i] = arguments[_i];
+        }
+        var x = this.x;
+        var y = this.y;
+        vectors.forEach(function (v) {
+            x += v.x;
+            y += v.y;
+        });
+        return new Vector(x, y);
+    };
+    Vector.prototype.Subtract = function (vector) {
+        return new Vector(this.x - vector.x, this.y - vector.y);
+    };
+    Vector.prototype.Normalize = function () {
+        var h = Math.sqrt((Math.pow(this.x, 2)) + (Math.pow(this.y, 2)));
+        return new Vector(this.x / h, this.y / h);
+    };
     return Vector;
 }());

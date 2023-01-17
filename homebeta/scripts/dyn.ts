@@ -160,6 +160,12 @@ class Game {
         }
     }
 
+    static Click(x: number, y: number) {
+        if (Game.state === State.play) {
+            Game.world.player.Click(x, y);
+        }
+    }
+
 
     static Menu() {
         $('#Menu').show();
@@ -411,6 +417,10 @@ $(document).mouseup(function () {
 // noinspection JSDeprecatedSymbols
 $(document).mousemove(function (e) {
     Game.MouseMove(e.originalEvent.clientX, e.originalEvent.clientY);
+});
+
+$(document).click(function(e) {
+    Game.Click(e.pageX, e.pageY);
 });
 
 /*

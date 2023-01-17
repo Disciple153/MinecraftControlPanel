@@ -93,8 +93,11 @@ class Sprite {
 
         if (this._parent.position.xChanged ||
             this._parent.position.yChanged) {
-            if (this._cycleType = CycleType.boomerang) {
+            if (this._cycleType == CycleType.boomerang) {
                 frame = this.BoomerangCycle(world);
+            }
+            else if (this._cycleType == CycleType.loop) {
+                frame = this.LoopCycle(world);
             }
 
             if (this._directional) { 
